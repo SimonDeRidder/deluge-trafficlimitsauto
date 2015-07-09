@@ -1,13 +1,13 @@
-Deluge Traffic Limits
-=====================
+Deluge Traffic Limits Plus
+==========================
 
-_TrafficLimits_ is a plugin for the [Deluge bittorrent client](http://deluge-torrent.org/).  It will pause all torrents if more than a set amount of data is uploaded or downloaded.
+_TrafficLimitsPlus_ is a plugin for the [Deluge bittorrent client](http://deluge-torrent.org/). It is based on the _TrafficLimits_ plugin and adds some extra control features to resume traffic after a certain time.
 
 TrafficLimits can be found at
 [http://github.com/mavit/deluge-trafficlimits](http://github.com/mavit/deluge-trafficlimits).
 
-Downloads can be found at
-[http://www.triv.org.uk/~mavit/deluge-trafficlimits/](http://www.triv.org.uk/~mavit/deluge-trafficlimits/).
+TrafficLimitsPlus can be found at
+[https://github.com/SimonDeRidder/deluge-trafficlimitsplus](https://github.com/SimonDeRidder/deluge-trafficlimitsplus).
 
 Questions may be asked on the
 [http://forum.deluge-torrent.org/viewtopic.php?f=9&t=34343](Deluge forum).

@@ -37,16 +37,22 @@
 #    statement from all source files in the program, then also delete it here.
 #
 
+#Original TrafficLimits author: Peter Oliver
+#                               TrafficLimits@mavit.org.uk
+#                               https://github.com/mavit/deluge-trafficlimits
+
 from setuptools import setup
 
-__plugin_name__ = "TrafficLimits"
-__author__ = "Peter Oliver"
-__author_email__ = "TrafficLimits@mavit.org.uk"
-__version__ = "0.3"
-__url__ = "http://github.com/mavit/deluge-trafficlimits"
+__plugin_name__ = "TrafficLimitsPlus"
+__author__ = "Simon De Ridder"
+__author_email__ = "simondr@belgacom.net"
+__version__ = "0.1"
+__url__ = "https://github.com/SimonDeRidder/deluge-trafficlimits"
 __license__ = "GPLv3"
-__description__ = "Restrict the maximum total upload/download during certain time periods."
-__long_description__ = """"""
+__description__ = "Restrict the upload/download/total bandwidth during specified time periods."
+__long_description__ = "Keeps track of uploaded and downloaded volumes and stops the session "
+                       "when a specified limit is reached. The counters are reset after a "
+                       "specified period of time."
 __pkg_data__ = {__plugin_name__.lower(): ["template/*", "data/*"]}
 
 setup(
