@@ -46,7 +46,7 @@ from common import get_resource
 
 class WebUI(WebPluginBase):
 
-    scripts = [get_resource("trafficlimits.js")]
+    scripts = [get_resource("trafficlimitsplus.js")]
 
     def enable(self):
         pass

@@ -39,4 +39,4 @@
 
 def get_resource(filename):
     import pkg_resources, os
-    return pkg_resources.resource_filename("trafficlimits", os.path.join("data", filename))
+    return pkg_resources.resource_filename("trafficlimitsplus", os.path.join("data", filename))

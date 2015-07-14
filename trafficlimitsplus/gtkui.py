@@ -55,7 +55,7 @@ class GtkUI(GtkPluginBase):
                 "on_button_clear_clicked": self.on_button_clear_clicked,
                 });
 
-        component.get("Preferences").add_page("TrafficLimits", self.builder.get_object("prefs_box"))
+        component.get("Preferences").add_page("TrafficLimitsPlus", self.builder.get_object("prefs_box"))
         component.get("PluginManager").register_hook("on_apply_prefs", self.on_apply_prefs)
         component.get("PluginManager").register_hook("on_show_prefs", self.on_show_prefs)
 
@@ -63,7 +63,7 @@ class GtkUI(GtkPluginBase):
             image=get_resource("monitor.png"),
             text="",
             callback=self.on_status_item_clicked,
-            tooltip="TrafficLimits plugin"
+            tooltip="TrafficLimitsPlus plugin"
         )
 
         def on_get_state(state):

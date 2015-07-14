@@ -43,175 +43,105 @@ import deluge.component as component
 import deluge.configmanager
 from deluge.core.rpcserver import export
 import os
-from deluge.event import DelugeEvent
 from twisted.internet.task import LoopingCall
 import time
 
 init_time = time.time()
+update_interval = 5 #time in seconds between updates
 DEFAULT_PREFS = {
-    "maximum_upload": -1,
-    "maximum_download": -1,
-    "maximum_total": -1,
-    "previous_upload": 0,
-    "previous_download": 0,
-    "previous_total": 0,
-    "reset_time_upload": init_time,
-    "reset_time_download": init_time,
-    "reset_time_total": init_time,
-    "label": ""
+    "upload_limit": -1,
+    "download_limit": -1,
+    "total_limit": -1,
+    "upload": 0,
+    "download": 0,
+    "total": 0,
+    "reset_time": init_time
+    "time_limit": 86400 # 1 day
 }
 
 class Core(CorePluginBase):
     def enable(self):
-        log.debug("TrafficLimits: Enabling...")
-        self.config = deluge.configmanager.ConfigManager("trafficlimits.conf",
+        log.debug("TrafficLimitsPlus: Enabling...")
+        self.config = deluge.configmanager.ConfigManager("trafficlimitsplus.conf",
                                                          DEFAULT_PREFS)
-        self.paused = False	# Paused by us, not some other plugin.
-        self.label = self.config["label"]
-        self.limits_mtime = 0
-        self.set_initial()
-        self.load_limits()
+        self.paused = False
+        self.upload = self.config["upload"]
+        self.download = self.config["download"]
+        self.total = self.config["total"]
+        self.elapsed = time.time() - self.config["reset_time"]
+        self.update_index = update_interval
+        self.ignore_upload = 0
+        self.ignore_download = 0
 
-        self.update_timer = LoopingCall(self.update_traffic)
-        self.update_timer.start(10)
-        log.debug("TrafficLimits: Enabled.")
+##        self.update_timer = LoopingCall(self.update_traffic)
+##        self.update_timer.start(5)
+        log.debug("TrafficLimitsPlus: Enabled.")
 
 
     def disable(self):
-        log.debug("TrafficLimits: Disabling...")
+        log.debug("TrafficLimitsPlus: Disabling...")
         self.update_timer.stop()
 
-        self.config["previous_upload"] \
-            += self.session_upload - self.initial_upload
-        self.config["previous_download"] \
-            += self.session_download - self.initial_download
-        self.config["previous_total"] \
-            += self.session_total - self.initial_total
+        self.config["upload"] = self.upload
+        self.config["download"] = self.upload
+        self.config["total"] = self.total
         self.config.save()
         if self.paused:
             component.get("Core").session.resume()
-        log.debug("TrafficLimits: Disabled.")
+        log.debug("TrafficLimitsPlus: Disabled.")
 
+    def update(self):
+        if self.update_index==update_interval:
+            log.debug("TrafficLimitsPlus: Updating...")
+            if not self.paused:
+                update_traffic()
+            update_time()
+            self.update_index=0
+           log.debug("TrafficLimitsPlus: Updated.")
+        self.update_index+=1
+            
 
     def update_traffic(self):
-        log.debug("TrafficLimits: Updating...")
+        status = component.get("Core").get_session_status(["total_upload","total_download"])
+        self.upload = status["total_upload"] - self.ignore_upload
+        self.download = status["total_download"] - self.ignore_download
+        self.total = self.upload + self.download
+        
+        uploadreached = self.config["upload_limit"] >= 0 and self.upload > self.config["upload_limit"]
+        downloadreached=self.config["download_limit"]>=0 and self.download>self.config["download_limit"]
+        totalreached  = self.config["total_limit"]  >= 0 and self.total  > self.config["total_limit"]
+        
+        if uploadreached:
+            log.info("TrafficLimitsPlus: Session paused: upload limit reached.")
+        elif downloadreached:
+            log.info("TrafficLimits: Session paused: download limit reached.")
+        elif totalreached:
+            log.info("TrafficLimits: Session paused: throughput limit reached.")
 
-        try:
-            if os.stat(deluge.configmanager.get_config_dir("trafficlimits")) \
-                    .st_mtime != self.limits_mtime:
-                self.load_limits();
-        except OSError as error:
-            log.debug("TrafficLimits: "
-                      + deluge.configmanager.get_config_dir("trafficlimits")
-                      + ": " + str(error))
-
-        status = component.get("Core").get_session_status(["total_upload",
-                                                           "total_download"])
-        self.session_upload = status["total_upload"]
-        self.session_download = status["total_download"]
-        self.session_total = status["total_upload"] + status["total_download"]
-
-        self.upload = ( self.config["previous_upload"]
-                        + self.session_upload - self.initial_upload )
-        self.download = ( self.config["previous_download"]
-                          + self.session_download - self.initial_download )
-        self.total = ( self.config["previous_total"]
-                       + self.session_total - self.initial_total )
-
-        if ( self.config["maximum_upload"] >= 0
-             and self.upload > self.config["maximum_upload"] ):
-            log.info("TrafficLimits: Session paused due to excessive upload.")
+        if uploadreached or downloadreached or totalreached:
             self.paused = True
             component.get("Core").session.pause()
-            self.initial_upload = self.session_upload
-            self.config["previous_upload"] = 0
-            self.config["reset_time_upload"] = time.time()
 
-        if ( self.config["maximum_download"] >= 0
-             and self.download > self.config["maximum_download"] ):
-            log.info("TrafficLimits: Session paused due to excessive download.")
-            self.paused = True
-            component.get("Core").session.pause()
-            self.initial_download = self.session_download
-            self.config["previous_download"] = 0
-            self.config["reset_time_download"] = time.time()
-
-        if ( self.config["maximum_total"] >= 0
-             and self.total > self.config["maximum_total"] ):
-            log.info("TrafficLimits: Session paused due to excessive throughput.")
-            self.paused = True
-            component.get("Core").session.pause()
-            self.initial_total = self.session_total
-            self.config["previous_total"] = 0
-            self.config["reset_time_total"] = time.time()
-
-        component.get("EventManager").emit(
-            TrafficLimitUpdate(
-                self.config["label"], self.upload, self.download, self.total,
-                self.config["maximum_upload"],
-                self.config["maximum_download"],
-                self.config["maximum_total"],
-                self.config["reset_time_upload"],
-                self.config["reset_time_download"],
-                self.config["reset_time_total"]
-            )
-        )
-
-        log.debug("TrafficLimits: Updated.")
-
-
-    def load_limits(self):
-        log.debug("TrafficLimits: Loading limits...")
-
-        try:
-            limits = open(deluge.configmanager.get_config_dir("trafficlimits"))
-            limits_mtime = os.fstat(limits.fileno()).st_mtime
-            label = limits.readline().rstrip(os.linesep)
-            maximum_upload = int(limits.readline().rstrip(os.linesep))
-            maximum_download = int(limits.readline().rstrip(os.linesep))
-
-            line = limits.readline().rstrip(os.linesep)
-            maximum_total = -1 if line == '' else int(line)
-
-        except (IOError, OSError, ValueError) as error:
-            log.error("TrafficLimits: "
-                      + deluge.configmanager.get_config_dir("trafficlimits")
-                      + ": " + str(error))
-            return
-
-        self.limits_mtime = limits_mtime
-        self.label = label
-        self.config["maximum_upload"] = maximum_upload
-        self.config["maximum_download"] = maximum_download
-        self.config["maximum_total"] = maximum_total
-
-        if self.label != self.config["label"]:
-            self.config["label"] = self.label
-            self.reset_initial()
-            if self.paused:
-                self.paused = False
-                component.get("Core").session.resume()
-
-        log.debug("TrafficLimits: Loaded limits.")
+    def update_time(self):
+        self.elapsed = time.time() - self.config["reset_time"]
+        if self.elapsed > self.config["time_limit"]:
+            reset()
+            component.get("Core").session.resume()
+            self.paused = False
+            
 
     @export
-    def reset_initial(self):
-        self.config["previous_upload"] = 0
-        self.config["previous_download"] = 0
-        self.config["previous_total"] = 0
-        self.config["reset_time_upload"] = time.time()
-        self.config["reset_time_download"] = self.config["reset_time_upload"]
-        self.config["reset_time_total"] = self.config["reset_time_upload"]
-        self.set_initial()
-
-
-    def set_initial(self):
-        status = component.get("Core").get_session_status(
-            ["total_download", "total_upload"]
-        )
-        self.initial_upload = status["total_upload"]
-        self.initial_download = status["total_download"]
-        self.initial_total = status["total_upload"] + status["total_download"]
+    def reset(self):
+        self.config["upload"] = 0
+        self.config["download"] = 0
+        self.config["total"] = 0
+        self.upload = 0
+        self.download = 0
+        self.total = 0
+        status = component.get("Core").get_session_status(["total_upload","total_download"])
+        self.ignore_upload = status["total_upload"]
+        self.ignore_download = status["total_download"]
+        self.config["reset_time"] = time.time()
 
 
     @export
@@ -240,27 +170,3 @@ class Core(CorePluginBase):
             self.config["reset_time_total"]
         ]
         return state
-
-
-class TrafficLimitUpdate (DelugeEvent):
-    """
-    Emitted when the ammount of transferred data changes.
-    """
-    def __init__(self, label, upload, download, total, maximum_upload,
-                 maximum_download, maximum_total, reset_time_upload,
-                 reset_time_download, reset_time_total):
-        """
-        :param label: str, a description of the current period
-        :param upload: int, bytes uploaded during the current period
-        :param download: int, bytes downloaded during the current period
-        :param total: int, bytes up/downloaded during the current period
-        :param maximum_upload: int, upper bound for bytes transmitted
-        :param maximum_download: int, upper bound for bytes received
-        :param maximum_total: int, upper bound for bytes transferred
-        :param reset_time_upload: float, secs since epoch that upload was reset
-        :param reset_time_download: float, secs since epoch download was reset
-        :param reset_time_total: float, secs since epoch total was reset
-        """
-        self._args = [label, upload, download, total, maximum_upload,
-                      maximum_download, maximum_total, reset_time_upload,
-                      reset_time_download, reset_time_total]
