@@ -1,6 +1,9 @@
 #
 # common.py
 #
+# Copyright (C) 2015 Simon De Ridder <simondr@belgacom.net>
+#
+# original TrafficLimits plugin by:
 # Copyright (C) 2009 Peter Oliver <TrafficLimits@mavit.org.uk>
 #
 # Basic plugin template created by:

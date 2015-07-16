@@ -40,7 +40,7 @@
                   <object class="GtkTable" id="table_limits">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="n_rows">4</property>
+                    <property name="n_rows">5</property>
                     <property name="n_columns">2</property>
                     <child>
                       <object class="GtkLabel" id="label_download">
@@ -71,23 +71,6 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="spinbutton_upload">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="tooltip_text" translatable="yes">All torrents will be paused once this much data has been uploaded.</property>
-                        <property name="adjustment">adjustment_upload</property>
-                        <property name="climb_rate">1024</property>
-                        <property name="numeric">True</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="y_options"/>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkLabel" id="label_upload">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -103,38 +86,19 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="label_label">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="has_tooltip">True</property>
-                        <property name="tooltip_markup" translatable="yes">An aide-mémoire, identifying the metered period of time.</property>
-                        <property name="tooltip_text" translatable="yes">An aide-mémoire, identifying the metered period of time.</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Label:</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">3</property>
-                        <property name="bottom_attach">4</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
-                        <property name="y_padding">20</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="txt_label">
+                      <object class="GtkSpinButton" id="spinbutton_upload">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="has_tooltip">True</property>
-                        <property name="tooltip_markup" translatable="yes">An aide-mémoire, identifying the metered period of time.</property>
-                        <property name="tooltip_text" translatable="yes">An aide-mémoire, identifying the metered period of time.</property>
-                        <property name="invisible_char">●</property>
-                        <property name="text" translatable="yes">Unlimited</property>
+                        <property name="tooltip_text" translatable="yes">All torrents will be paused once this much data has been uploaded.</property>
+                        <property name="adjustment">adjustment_upload</property>
+                        <property name="climb_rate">1024</property>
+                        <property name="numeric">True</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
-                        <property name="top_attach">3</property>
-                        <property name="bottom_attach">4</property>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
                         <property name="y_options"/>
                       </packing>
                     </child>
@@ -173,6 +137,42 @@
                         <property name="right_attach">2</property>
                         <property name="top_attach">2</property>
                         <property name="bottom_attach">3</property>
+                        <property name="y_options"/>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label_time">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="has_tooltip">True</property>
+                        <property name="tooltip_markup" translatable="yes">All counters will be reset after this time, torrents will resume.</property>
+                        <property name="tooltip_text" translatable="yes">All counters will be reset after this time, torrents will resume.</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Time (seconds):</property>
+                      </object>
+                      <packing>
+                        <property name="top_attach">3</property>
+                        <property name="bottom_attach">4</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"/>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="spinbutton_time">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="has_tooltip">True</property>
+                        <property name="tooltip_markup" translatable="yes">All counters will be reset after this time, torrents will resume.</property>
+                        <property name="tooltip_text" translatable="yes">All counters will be reset after this time, torrents will resume.</property>
+                        <property name="climb_rate">3600</property>
+                        <property name="numeric">True</property>
+                        <property name="adjustment">adjustment_total</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">3</property>
+                        <property name="bottom_attach">4</property>
                         <property name="y_options"/>
                       </packing>
                     </child>

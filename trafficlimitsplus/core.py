@@ -1,6 +1,9 @@
 #
 # core.py
 #
+# Copyright (C) 2015 Simon De Ridder <simondr@belgacom.net>
+#
+# original TrafficLimits plugin by:
 # Copyright (C) 2010 Peter Oliver <TrafficLimits@mavit.org.uk>
 #
 # Basic plugin template created by:
@@ -114,13 +117,23 @@ class Core(CorePluginBase):
         if uploadreached:
             log.info("TrafficLimitsPlus: Session paused: upload limit reached.")
         elif downloadreached:
-            log.info("TrafficLimits: Session paused: download limit reached.")
+            log.info("TrafficLimitsPlus: Session paused: download limit reached.")
         elif totalreached:
-            log.info("TrafficLimits: Session paused: throughput limit reached.")
+            log.info("TrafficLimitsPlus: Session paused: throughput limit reached.")
 
         if uploadreached or downloadreached or totalreached:
             self.paused = True
             component.get("Core").session.pause()
+
+        component.get("EventManager").emit(
+            TrafficLimitPlusUpdate(
+                self.upload, self.download, self.total,
+                self.config["upload_limit"]
+                self.config["download_limit"]
+                self.config["total_limit"],
+                self.config["reset_time"]
+            )
+        )
 
     def update_time(self):
         self.elapsed = time.time() - self.config["reset_time"]
@@ -161,12 +174,33 @@ class Core(CorePluginBase):
     @export
     def get_state(self):
         state = [
-            self.config["label"], self.upload, self.download, self.total,
-            self.config["maximum_upload"],
-            self.config["maximum_download"],
-            self.config["maximum_total"],
-            self.config["reset_time_upload"],
-            self.config["reset_time_download"],
-            self.config["reset_time_total"]
+            self.upload, self.download, self.total,
+            self.config["upload_limit"],
+            self.config["download_limit"],
+            self.config["total_limit"],
+            self.config["reset_time"],
+            self.config["time_limit"]
         ]
         return state
+
+
+    
+
+class TrafficLimitPlusUpdate (DelugeEvent):
+    """
+    Emitted when the ammount of transferred data changes.
+    """
+    def __init__(self, upload, download, total, upload_limit,
+                 download_limit, total_limit, reset_time, time_limit):
+        """
+        :param upload: int, bytes uploaded during the current period
+        :param download: int, bytes downloaded during the current period
+        :param total: int, bytes up/downloaded during the current period
+        :param upload_limit: int, upper bound for bytes transmitted
+        :param download_limit: int, upper bound for bytes received
+        :param total_limit: int, upper bound for bytes transferred
+        :param reset_time: float, secs since epoch that limits were reset
+        :param time_limit: float, secs after which counters reset
+        """
+        self._args = [upload, download, total, upload_limit, download_limit,
+                      total_limit, reset_time, time_limit]
