@@ -51,8 +51,8 @@ __url__ = "https://github.com/SimonDeRidder/deluge-trafficlimits"
 __license__ = "GPLv3"
 __description__ = "Restrict the upload/download/total bandwidth during specified time periods."
 __long_description__ = "Keeps track of uploaded and downloaded volumes and stops the session "
-                       "when a specified limit is reached. The counters are reset after a "
-                       "specified period of time."
+"when a specified limit is reached. The counters are reset after a "
+"specified period of time."
 __pkg_data__ = {__plugin_name__.lower(): ["template/*", "data/*"]}
 
 setup(
