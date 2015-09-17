@@ -46,6 +46,7 @@ import deluge.component as component
 import deluge.configmanager
 from deluge.core.rpcserver import export
 import os
+from deluge.event import DelugeEvent
 from twisted.internet.task import LoopingCall
 import time
 
@@ -58,7 +59,7 @@ DEFAULT_PREFS = {
     "upload": 0,
     "download": 0,
     "total": 0,
-    "reset_time": init_time
+    "reset_time": init_time,
     "time_limit": 86400 # 1 day
 }
 
@@ -97,10 +98,10 @@ class Core(CorePluginBase):
         if self.update_index==update_interval:
             log.debug("TrafficLimitsPlus: Updating...")
             if not self.paused:
-                update_traffic()
-            update_time()
+                self.update_traffic()
+            self.update_time()
             self.update_index=0
-           log.debug("TrafficLimitsPlus: Updated.")
+            log.debug("TrafficLimitsPlus: Updated.")
         self.update_index+=1
             
 
@@ -128,10 +129,11 @@ class Core(CorePluginBase):
         component.get("EventManager").emit(
             TrafficLimitPlusUpdate(
                 self.upload, self.download, self.total,
-                self.config["upload_limit"]
-                self.config["download_limit"]
+                self.config["upload_limit"],
+                self.config["download_limit"],
                 self.config["total_limit"],
-                self.config["reset_time"]
+                self.config["reset_time"],
+		self.config["time_limit"]
             )
         )
 
@@ -188,7 +190,7 @@ class Core(CorePluginBase):
 
 class TrafficLimitPlusUpdate (DelugeEvent):
     """
-    Emitted when the ammount of transferred data changes.
+    Emitted when the amount of transferred data changes.
     """
     def __init__(self, upload, download, total, upload_limit,
                  download_limit, total_limit, reset_time, time_limit):
