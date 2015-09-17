@@ -84,7 +84,7 @@ class Core(CorePluginBase):
 
     def disable(self):
         log.debug("TrafficLimitsPlus: Disabling...")
-        self.update_timer.stop()
+##        self.update_timer.stop()
 
         self.config["upload"] = self.upload
         self.config["download"] = self.upload
@@ -139,8 +139,8 @@ class Core(CorePluginBase):
 
     def update_time(self):
         self.elapsed = time.time() - self.config["reset_time"]
-        if self.elapsed > self.config["time_limit"]:
-            reset()
+        if self.elapsed > self.config["time_limit"] and self.config["time_limit"]>=0:
+            self.reset()
             component.get("Core").session.resume()
             self.paused = False
             

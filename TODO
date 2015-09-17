@@ -1,3 +1,5 @@
 * Do gtk interface decently
+* change icon
 * test and debug
+* Add command line config support
 * Add a web-based user interface

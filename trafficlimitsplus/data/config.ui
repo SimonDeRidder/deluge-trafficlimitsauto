@@ -7,17 +7,23 @@
     <property name="step_increment">1024</property>
     <property name="page_increment">1048576</property>
   </object>
+  <object class="GtkAdjustment" id="adjustment_upload">
+    <property name="lower">-1</property>
+    <property name="upper">1e+43</property>
+    <property name="step_increment">1024</property>
+    <property name="page_increment">1048576</property>
+  </object>
   <object class="GtkAdjustment" id="adjustment_total">
     <property name="lower">-1</property>
     <property name="upper">1e+43</property>
     <property name="step_increment">1024</property>
     <property name="page_increment">1048576</property>
   </object>
-  <object class="GtkAdjustment" id="adjustment_upload">
+  <object class="GtkAdjustment" id="adjustment_time">
     <property name="lower">-1</property>
     <property name="upper">1e+43</property>
-    <property name="step_increment">1024</property>
-    <property name="page_increment">1048576</property>
+    <property name="step_increment">3600</property>
+    <property name="page_increment">86400</property>
   </object>
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
@@ -108,7 +114,7 @@
                         <property name="can_focus">False</property>
                         <property name="has_tooltip">True</property>
                         <property name="tooltip_markup" translatable="yes">All torrents will be paused once this much data has been transferred.</property>
-                        <property name="tooltip_text" translatable="yes">All torrents will be paused once this much data has been uploaded.</property>
+                        <property name="tooltip_text" translatable="yes">All torrents will be paused once this much data has been transferred.</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Total (bytes):</property>
                       </object>
@@ -125,9 +131,7 @@
                         <property name="can_focus">True</property>
                         <property name="has_tooltip">True</property>
                         <property name="tooltip_markup" translatable="yes">All torrents will be paused once this much data has been transferred.</property>
-                        <property name="tooltip_text" translatable="yes">All torrents will be paused once this much data has been uploaded.</property>
-                        <property name="invisible_char">●</property>
-                        <property name="invisible_char_set">True</property>
+                        <property name="tooltip_text" translatable="yes">All torrents will be paused once this much data has been transferred.</property>
                         <property name="climb_rate">1024</property>
                         <property name="numeric">True</property>
                         <property name="adjustment">adjustment_total</property>
@@ -166,7 +170,7 @@
                         <property name="tooltip_text" translatable="yes">All counters will be reset after this time, torrents will resume.</property>
                         <property name="climb_rate">3600</property>
                         <property name="numeric">True</property>
-                        <property name="adjustment">adjustment_total</property>
+                        <property name="adjustment">adjustment_time</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>

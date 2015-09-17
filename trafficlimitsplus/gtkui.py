@@ -92,7 +92,7 @@ class GtkUI(GtkPluginBase):
             "total_limit":
                 int(self.builder.get_object("spinbutton_total").get_value()),
             "time_limit":
-                int(self.builder.get_object("spinbutton_time").get_value()),#TODO
+                int(self.builder.get_object("spinbutton_time").get_value())#TODO
         }
         client.trafficlimitsplus.set_config(config)
 
@@ -128,9 +128,7 @@ class GtkUI(GtkPluginBase):
 
     def on_button_clear_clicked(self, widget):
         client.trafficlimitsplus.reset()
-        self.builder.get_object("label_uploaded").set_text("0 bytes")
-        self.builder.get_object("label_downloaded").set_text("0 bytes")
-        self.builder.get_object("label_transferred").set_text("0 bytes")
+        client.trafficlimitsplus.get_state().addCallback(self.cb_get_state)
 
     def set_status(self, upload, download, total, upload_limit,
                    download_limit, total_limit, reset_time, time_limit):
