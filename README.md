@@ -1,13 +1,13 @@
-Deluge Traffic Limits Plus
+Deluge Traffic Limits Auto
 ==========================
 
-_TrafficLimitsPlus_ is a plugin for the [Deluge bittorrent client](http://deluge-torrent.org/). It is based on the _TrafficLimits_ plugin and adds some extra control features to resume traffic after a certain time.
+_TrafficLimitsAuto_ is a plugin for the [Deluge bittorrent client](http://deluge-torrent.org/). It is based on the _TrafficLimits_ plugin and adds some extra control features to resume traffic after a certain time.
 
 TrafficLimits can be found at
 [http://github.com/mavit/deluge-trafficlimits](http://github.com/mavit/deluge-trafficlimits).
 
-TrafficLimitsPlus can be found at
-[https://github.com/SimonDeRidder/deluge-trafficlimitsplus](https://github.com/SimonDeRidder/deluge-trafficlimitsplus).
+TrafficLimitsAuto can be found at
+[https://github.com/SimonDeRidder/deluge-trafficlimitsauto](https://github.com/SimonDeRidder/deluge-trafficlimitsauto).
 
 Questions may be asked on the
 [http://forum.deluge-torrent.org/viewtopic.php?f=9&t=34343](Deluge forum).

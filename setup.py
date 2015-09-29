@@ -43,7 +43,7 @@
 
 from setuptools import setup
 
-__plugin_name__ = "TrafficLimitsPlus"
+__plugin_name__ = "TrafficLimitsAuto"
 __author__ = "Simon De Ridder"
 __author_email__ = "simondr@belgacom.net"
 __version__ = "0.1"

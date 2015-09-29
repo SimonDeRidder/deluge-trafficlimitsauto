@@ -1,6 +1,6 @@
 /*
-Script: trafficlimits.js
-    The client-side javascript code for the TrafficLimits plugin.
+Script: trafficlimitsauto.js
+    The client-side javascript code for the TrafficLimitsAuto plugin.
 
 Copyright:
     (C) Peter Oliver 2009 <TrafficLimits@mavit.org.uk>
@@ -31,12 +31,12 @@ Copyright:
     statement from all source files in the program, then also delete it here.
 */
 
-TrafficLimitsPlusPlugin = Ext.extend(Deluge.Plugin, {
+TrafficLimitsAutoPlugin = Ext.extend(Deluge.Plugin, {
 	constructor: function(config) {
 		config = Ext.apply({
-			name: "TrafficLimitsPlus"
+			name: "TrafficLimitsAuto"
 		}, config);
-		TrafficLimitsPlusPlugin.superclass.constructor.call(this, config);
+		TrafficLimiAutoPlugin.superclass.constructor.call(this, config);
 	},
 
 	onDisable: function() {
@@ -47,4 +47,4 @@ TrafficLimitsPlusPlugin = Ext.extend(Deluge.Plugin, {
 
 	}
 });
-new TrafficLimitsPlusPlugin();
+new TrafficLimitsAutoPlugin();

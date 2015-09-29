@@ -65,8 +65,8 @@ DEFAULT_PREFS = {
 
 class Core(CorePluginBase):
     def enable(self):
-        log.debug("TrafficLimitsPlus: Enabling...")
-        self.config = deluge.configmanager.ConfigManager("trafficlimitsplus.conf",
+        log.debug("TrafficLimitsAuto: Enabling...")
+        self.config = deluge.configmanager.ConfigManager("trafficlimitsauto.conf",
                                                          DEFAULT_PREFS)
         self.paused = False
         self.upload = self.config["upload"]
@@ -79,11 +79,11 @@ class Core(CorePluginBase):
 
 ##        self.update_timer = LoopingCall(self.update_traffic)
 ##        self.update_timer.start(5)
-        log.debug("TrafficLimitsPlus: Enabled.")
+        log.debug("TrafficLimitsAuto: Enabled.")
 
 
     def disable(self):
-        log.debug("TrafficLimitsPlus: Disabling...")
+        log.debug("TrafficLimitsAuto: Disabling...")
 ##        self.update_timer.stop()
 
         self.config["upload"] = self.upload
@@ -92,16 +92,16 @@ class Core(CorePluginBase):
         self.config.save()
         if self.paused:
             component.get("Core").session.resume()
-        log.debug("TrafficLimitsPlus: Disabled.")
+        log.debug("TrafficLimitsAuto: Disabled.")
 
     def update(self):
         if self.update_index==update_interval:
-            log.debug("TrafficLimitsPlus: Updating...")
+            log.debug("TrafficLimitsAuto: Updating...")
             if not self.paused:
                 self.update_traffic()
             self.update_time()
             self.update_index=0
-            log.debug("TrafficLimitsPlus: Updated.")
+            log.debug("TrafficLimAuto: Updated.")
         self.update_index+=1
             
 
@@ -116,18 +116,18 @@ class Core(CorePluginBase):
         totalreached  = self.config["total_limit"]  >= 0 and self.total  > self.config["total_limit"]
         
         if uploadreached:
-            log.info("TrafficLimitsPlus: Session paused: upload limit reached.")
+            log.info("TrafficLimitsAuto: Session paused: upload limit reached.")
         elif downloadreached:
-            log.info("TrafficLimitsPlus: Session paused: download limit reached.")
+            log.info("TrafficLimitsAuto: Session paused: download limit reached.")
         elif totalreached:
-            log.info("TrafficLimitsPlus: Session paused: throughput limit reached.")
+            log.info("TrafficLimitsAuto: Session paused: throughput limit reached.")
 
         if uploadreached or downloadreached or totalreached:
             self.paused = True
             component.get("Core").session.pause()
 
         component.get("EventManager").emit(
-            TrafficLimitPlusUpdate(
+            TrafficLimitAutoUpdate(
                 self.upload, self.download, self.total,
                 self.config["upload_limit"],
                 self.config["download_limit"],
@@ -188,7 +188,7 @@ class Core(CorePluginBase):
 
     
 
-class TrafficLimitPlusUpdate (DelugeEvent):
+class TrafficLimitAutoUpdate (DelugeEvent):
     """
     Emitted when the amount of transferred data changes.
     """

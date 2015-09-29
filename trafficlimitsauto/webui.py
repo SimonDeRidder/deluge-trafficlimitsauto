@@ -1,9 +1,6 @@
 #
-# common.py
+# webui.py
 #
-# Copyright (C) 2015 Simon De Ridder <simondr@belgacom.net>
-#
-# original TrafficLimits plugin by:
 # Copyright (C) 2009 Peter Oliver <TrafficLimits@mavit.org.uk>
 #
 # Basic plugin template created by:
@@ -40,6 +37,19 @@
 #    statement from all source files in the program, then also delete it here.
 #
 
-def get_resource(filename):
-    import pkg_resources, os
-    return pkg_resources.resource_filename("trafficlimitsplus", os.path.join("data", filename))
+from deluge.log import LOG as log
+from deluge.ui.client import client
+from deluge import component
+from deluge.plugins.pluginbase import WebPluginBase
+
+from common import get_resource
+
+class WebUI(WebPluginBase):
+
+    scripts = [get_resource("trafficlimitsauto.js")]
+
+    def enable(self):
+        pass
+
+    def disable(self):
+        pass

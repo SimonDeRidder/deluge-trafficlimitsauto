@@ -58,7 +58,7 @@ class GtkUI(GtkPluginBase):
                 "on_button_clear_clicked": self.on_button_clear_clicked,
                 });
 
-        component.get("Preferences").add_page("TrafficLimitsPlus", self.builder.get_object("prefs_box"))
+        component.get("Preferences").add_page("TrafficLimitsAuto", self.builder.get_object("prefs_box"))
         component.get("PluginManager").register_hook("on_apply_prefs", self.on_apply_prefs)
         component.get("PluginManager").register_hook("on_show_prefs", self.on_show_prefs)
 
@@ -66,24 +66,24 @@ class GtkUI(GtkPluginBase):
             image=get_resource("monitor.png"),
             text="",
             callback=self.on_status_item_clicked,
-            tooltip="TrafficLimitsPlus plugin"
+            tooltip="TrafficLimitsAuto plugin"
         )
 
         def on_get_state(state):
             self.set_status(*state)
 
-        self.state_deferred = client.trafficlimitsplus.get_state().addCallback(on_get_state)
-        client.register_event_handler("TrafficLimitPlusUpdate", self.on_trafficlimitsplus_update)
+        self.state_deferred = client.trafficlimitsauto.get_state().addCallback(on_get_state)
+        client.register_event_handler("TrafficLimitAutoUpdate", self.on_trafficlimitsauto_update)
 
     def disable(self):
         component.get("StatusBar").remove_item(self.status_item)
         del self.status_item
-        component.get("Preferences").remove_page("TrafficLimitsPlus")
+        component.get("Preferences").remove_page("TrafficLimitsAuto")
         component.get("PluginManager").deregister_hook("on_apply_prefs", self.on_apply_prefs)
         component.get("PluginManager").deregister_hook("on_show_prefs", self.on_show_prefs)
 
     def on_apply_prefs(self):
-        log.debug("applying prefs for TrafficLimitsPlus")
+        log.debug("applying prefs for TrafficLimitsAuto")
         config = {
             "upload_limit":
                 int(self.builder.get_object("spinbutton_upload").get_value()),
@@ -94,11 +94,11 @@ class GtkUI(GtkPluginBase):
             "time_limit":
                 int(self.builder.get_object("spinbutton_time").get_value())#TODO
         }
-        client.trafficlimitsplus.set_config(config)
+        client.trafficlimitsauto.set_config(config)
 
     def on_show_prefs(self):
-        client.trafficlimitsplus.get_config().addCallback(self.cb_get_config)
-        client.trafficlimitsplus.get_state().addCallback(self.cb_get_state)
+        client.trafficlimitsauto.get_config().addCallback(self.cb_get_config)
+        client.trafficlimitsauto.get_state().addCallback(self.cb_get_state)
 
     def cb_get_config(self, config):
         "callback for on show_prefs"
@@ -124,11 +124,11 @@ class GtkUI(GtkPluginBase):
             + time.strftime("%c", time.localtime(state[6])))
 
     def on_status_item_clicked(self, widget, event):
-        component.get("Preferences").show("TrafficLimitsPlus")
+        component.get("Preferences").show("TrafficLimitsAuto")
 
     def on_button_clear_clicked(self, widget):
-        client.trafficlimitsplus.reset()
-        client.trafficlimitsplus.get_state().addCallback(self.cb_get_state)
+        client.trafficlimitsauto.reset()
+        client.trafficlimitsauto.get_state().addCallback(self.cb_get_state)
 
     def set_status(self, upload, download, total, upload_limit,
                    download_limit, total_limit, reset_time, time_limit):
@@ -155,12 +155,12 @@ class GtkUI(GtkPluginBase):
             ] if p[1] >= 0]
         ).capitalize()
         if tooltip == "":
-            tooltip = "TrafficLimitsPlus plugin"
+            tooltip = "TrafficLimitsAuto plugin"
         else:
             tooltip += " during this period"
         self.status_item.set_tooltip(tooltip)
         
-    def on_trafficlimitsplus_update(self, upload, download, total, upload_limit,
+    def on_trafficlimitsauto_update(self, upload, download, total, upload_limit,
                                     download_limit, total_limit, reset_time, time_limit):
         def on_state_deferred(s):
             self.set_status(upload, download, total, upload_limit, download_limit,
