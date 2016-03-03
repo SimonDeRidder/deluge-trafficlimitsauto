@@ -25,9 +25,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with deluge.    If not, write to:
-# 	The Free Software Foundation, Inc.,
-# 	51 Franklin Street, Fifth Floor
-# 	Boston, MA  02110-1301, USA.
+#     The Free Software Foundation, Inc.,
+#     51 Franklin Street, Fifth Floor
+#     Boston, MA  02110-1301, USA.
 #
 #    In addition, as a special exception, the copyright holders give
 #    permission to link the code of portions of this program with the OpenSSL
@@ -57,6 +57,24 @@ class GtkUI(GtkPluginBase):
         self.builder.connect_signals({
                 "on_button_clear_clicked": self.on_button_clear_clicked,
                 });
+		self.builder.get_object("combobox_upload").new_text()
+        self.builder.get_object("combobox_upload").insert_text(0,"B")
+        self.builder.get_object("combobox_upload").insert_text(1,"kiB")
+        self.builder.get_object("combobox_upload").insert_text(2,"MiB")
+        self.builder.get_object("combobox_upload").insert_text(3,"GiB")
+        self.builder.get_object("combobox_download").insert_text(0,"B")
+        self.builder.get_object("combobox_download").insert_text(1,"kiB")
+        self.builder.get_object("combobox_download").insert_text(2,"MiB")
+        self.builder.get_object("combobox_download").insert_text(3,"GiB")
+        self.builder.get_object("combobox_total").insert_text(0,"B")
+        self.builder.get_object("combobox_total").insert_text(1,"kiB")
+        self.builder.get_object("combobox_total").insert_text(2,"MiB")
+        self.builder.get_object("combobox_total").insert_text(3,"GiB")
+        self.builder.get_object("combobox_time").insert_text(0,"s")
+        self.builder.get_object("combobox_time").insert_text(1,"min")
+        self.builder.get_object("combobox_time").insert_text(2,"h")
+        self.builder.get_object("combobox_time").insert_text(3,"d")
+        self.builder.get_object("combobox_time").insert_text(4,"w")
 
         component.get("Preferences").add_page("TrafficLimitsAuto", self.builder.get_object("prefs_box"))
         component.get("PluginManager").register_hook("on_apply_prefs", self.on_apply_prefs)
@@ -84,15 +102,19 @@ class GtkUI(GtkPluginBase):
 
     def on_apply_prefs(self):
         log.debug("applying prefs for TrafficLimitsAuto")
+        upmult = self.unit_byte_mult(self.builder.get_object("combobox_upload").get_active_text())
+        downmult = self.unit_byte_mult(self.builder.get_object("combobox_download").get_active_text())
+        totmult = self.unit_byte_mult(self.builder.get_object("combobox_total").get_active_text())
+        timemult = self.unit_time_mult(self.builder.get_object("combobox_time").get_active_text())
         config = {
             "upload_limit":
-                int(self.builder.get_object("spinbutton_upload").get_value()),
+                int(self.builder.get_object("spinbutton_upload").get_value() * upmult),
             "download_limit":
-                int(self.builder.get_object("spinbutton_download").get_value()),
+                int(self.builder.get_object("spinbutton_download").get_value() * downmult),
             "total_limit":
-                int(self.builder.get_object("spinbutton_total").get_value()),
+                int(self.builder.get_object("spinbutton_total").get_value() * totmult),
             "time_limit":
-                int(self.builder.get_object("spinbutton_time").get_value())#TODO
+                int(self.builder.get_object("spinbutton_time").get_value() * timemult)
         }
         client.trafficlimitsauto.set_config(config)
 
@@ -102,14 +124,18 @@ class GtkUI(GtkPluginBase):
 
     def cb_get_config(self, config):
         "callback for on show_prefs"
-        self.builder.get_object("spinbutton_upload").set_value(
-            config["upload_limit"])
-        self.builder.get_object("spinbutton_download").set_value(
-            config["download_limit"])
-        self.builder.get_object("spinbutton_total").set_value(
-            config["total_limit"])
-        self.builder.get_object("spinbutton_time").set_value(
-            config["time_limit"])
+        up, upunit = self.unit_byte_split(config["upload_limit"])
+        self.builder.get_object("spinbutton_upload").set_value(up)
+        self.builder.get_object("combobox_upload").set_active_id(upunit)
+        down, downunit = self.unit_byte_split(config["download_limit"])
+        self.builder.get_object("spinbutton_download").set_value(down)
+        self.builder.get_object("combobox_download").set_active_id(downunit)
+        total, totunit = self.unit_byte_split(config["total_limit"])
+        self.builder.get_object("spinbutton_total").set_value(total)
+        self.builder.get_object("combobox_total").set_active_id(totunit)
+        time, timeunit = self.unit_time_split(config["time_limit"])
+        self.builder.get_object("spinbutton_time").set_value(time)
+        self.builder.get_object("combobox_time").set_active_id(timeunit)
 
     def cb_get_state(self, state):
         "callback for on show_prefs"
@@ -157,7 +183,7 @@ class GtkUI(GtkPluginBase):
         if tooltip == "":
             tooltip = "TrafficLimitsAuto plugin"
         else:
-            tooltip += " during this period"
+            tooltip += " since " + time.strftime("%c", time.localtime(reset_time))
         self.status_item.set_tooltip(tooltip)
         
     def on_trafficlimitsauto_update(self, upload, download, total, upload_limit,
@@ -168,3 +194,62 @@ class GtkUI(GtkPluginBase):
             self.cb_get_state([upload, download, total, upload_limit, download_limit,
                                total_limit, reset_time, time_limit])
         self.state_deferred.addCallback(on_state_deferred)
+
+    def unit_byte_mult(self, unit):
+        mult = 1
+        if unit == "kiB":
+            mult = mult *1024
+        if unit == "MiB":
+            mult = mult *1024*1024
+        if unit == "GiB":
+            mult = mult *1024*1024*1024
+        return mult
+
+    def unit_time_mult(self, unit):
+        mult = 1
+        if unit == "min":
+            mult = mult *60
+        elif unit == "h":
+            mult = mult *60*60
+        elif unit == "d":
+            mult = mult *60*60*24
+        elif unit == "w":
+            mult = mult *60*60*24*7
+        return mult
+
+    def unit_byte_split(self, bytes):
+        if bytes>=1024 and bytes%1024==0:
+            bytes = bytes/1024 # now in kiB
+            if bytes>=1024 and bytes%1024==0:
+                bytes = bytes/1024 # now in MiB
+                if bytes>=1024 and bytes%1024==0:
+                    bytes = bytes/1024 # now in GiB
+                    unit = 3#"GiB"
+                else:
+                    unit = 2#"MiB"
+            else:
+                unit = 1#"kiB"
+        else:
+            unit = 0#"B"
+        return bytes, unit
+
+    def unit_time_split(self, time):
+        if time>=60 and time%60==0:
+            time = time/60 # now in mins
+            if time>=60 and time%60==0:
+                time = time/60 # now in h
+                if time>=24 and time%24==0:
+                    time = time/24 # now in days
+                    if time>=7 and time%7==0:
+                        time = time/7 # now in days
+                        unit = 4#"w"
+                    else:
+                        unit = 3#"d"
+                else:
+                    unit = 2#"h"
+            else:
+                unit = 1#"min"
+        else:
+            unit = 0#"s"
+        return time, unit
+        
